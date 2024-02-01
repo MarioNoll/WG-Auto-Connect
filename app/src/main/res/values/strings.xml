@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">WG Auto Connect</string>
+    <string name="general_button_cancel">Cancel</string>
+    <string name="general_button_settings">Settings</string>
+    <string name="general_button_enable">Enable</string>
+    <string name="general_button_install">Install</string>
+
+    <string name="network_service_active">WG Auto Connect is running</string>
+    <string name="vpn_auto_connect_button_enabled">Enable WG Auto Connect</string>
+    <string name="vpn_auto_connect_button_disabled">Disable WG Auto Connect</string>
+    <string name="vpn_auto_connect_notification_channel">Network monitor service</string>
+    <string name="wifi_button_select">Select Trusted WIFI</string>
+    <string name="wifi_button_edit">Edit Trusted WIFI</string>
+    <string name="wifi_scan_empty">No nearby Wi-Fi found…</string>
+    <string name="wifi_scan_location_disabled_Enable">Enable</string>
+
+    <string name="tunnel_name_enter_dialog_label">WireGuard Tunnel Name</string>
+    <string name="tunnel_name_enter_dialog_button_confirm">Confirm</string>
+
+    <string name="select_network_scan">Searching for networks…</string>
+
+    <string name="home_guide_title">Automatically connect to a pre configured WireGuard tunnel once the connection to a specified network is lost.</string>
+    <string name="home_guide_step_1">Step 1: Select network.</string>
+    <string name="home_guide_step_2">Step 2: Enable service.</string>
+    <string name="home_guide_step_3">Step 3: Enter WireGuard tunnel name.</string>
+
+    <string name="home_selected_network">Selected Network: "%s"</string>
+    <string name="home_button_select_network">Select Network</string>
+    <string name="home_button_connect_enable">Enable Auto Connect</string>
+    <string name="home_button_connect_disable">Disable Auto Connect</string>
+    <string name="home_connect_status_enabled">Auto Connect Service: Enabled</string>
+    <string name="home_connect_status_disabled">Auto Connect Service: Disabled</string>
+
+    <string name="permission_dialog_scan_description">In order to be able to scan for networks, the Location permission must be given with precise location enabled.</string>
+    <string name="permission_dialog_monitor_description">Auto connect requires the following permissions: \n\n• Location set to always allowed\n• Precise location enabled\n• Control WireGuard tunnels</string>
+    <string name="permission_dialog_wire_guard_description">In order to enable auto connect you must install WireGuard and configure your tunnel.</string>
+
+    <string name="location_dialog_description">Location services must be enabled to scan for networks and changes in connection state.</string>
+</resources>

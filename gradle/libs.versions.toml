@@ -1,0 +1,35 @@
+[versions]
+agp = "8.2.2"
+compose = "1.5.8"
+dagger = "2.48"
+kotlin = "1.9.22"
+
+[libraries]
+accompanist-permissions = "com.google.accompanist:accompanist-permissions:0.33.2-alpha"
+androidx-activity-compose = "androidx.activity:activity-compose:1.8.2"
+androidx-compose-material-icons-extended = "androidx.compose.material:material-icons-extended:1.6.0"
+androidx-compose-material3 = "androidx.compose.material3:material3:1.2.0-rc01"
+androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+androidx-core = "androidx.core:core-ktx:1.12.0"
+androidx-datastore-preferences = "androidx.datastore:datastore-preferences:1.0.0"
+androidx-lifecycle-runtime = "androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"
+androidx-lifecycle-runtime-compose = "androidx.lifecycle:lifecycle-runtime-compose:2.7.0"
+androidx-lifecycle-viewmodel-compose = "androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0"
+androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.5.1"
+androidx-test-junit = "androidx.test.ext:junit:1.1.5"
+arrow-core = "io.arrow-kt:arrow-core:1.0.1"
+dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
+dagger-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger" }
+jetbrains-kotlinx-serialization = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2"
+junit = "junit:junit:4.13.2"
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
