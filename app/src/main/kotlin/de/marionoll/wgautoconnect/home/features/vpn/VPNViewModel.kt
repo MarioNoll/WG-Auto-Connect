@@ -1,6 +1,5 @@
 package de.marionoll.wgautoconnect.home.features.vpn
 
-import android.location.LocationManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.datastore.core.DataStore
@@ -14,6 +13,7 @@ import de.marionoll.wgautoconnect.home.IntentNavigator
 import de.marionoll.wgautoconnect.home.ui.Precondition
 import de.marionoll.wgautoconnect.service.NETWORK_SERVICE_PERMISSIONS
 import de.marionoll.wgautoconnect.service.NetworkMonitorServiceHandler
+import de.marionoll.wgautoconnect.util.LocationHelper
 import de.marionoll.wgautoconnect.util.PermissionHelper
 import de.marionoll.wgautoconnect.util.WireGuardAvailabilityProvider
 import kotlinx.coroutines.Job
@@ -30,7 +30,7 @@ class VPNViewModel
     private val autoConnectStateDataStore: DataStore<AutoConnectState?>,
     private val networkMonitorServiceHandler: NetworkMonitorServiceHandler,
     private val intentNavigator: IntentNavigator,
-    private val locationManager: LocationManager,
+    private val locationHelper: LocationHelper,
     private val wireGuardAvailabilityProvider: WireGuardAvailabilityProvider,
     private val permissionHelper: PermissionHelper,
 ) : ViewModel() {
@@ -181,7 +181,7 @@ class VPNViewModel
         }
 
 
-        if (!locationManager.isLocationEnabled) {
+        if (!locationHelper.isLocationEnabled) {
             showPreConditionDialog(
                 type = Precondition.Location(
                     origin = Precondition.Origin.Monitor

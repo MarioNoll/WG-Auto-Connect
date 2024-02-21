@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "de.marionoll.wgautoconnect"
-        minSdk = 29
+        minSdk = 23
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
@@ -95,9 +95,4 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     kapt(libs.dagger.hilt.compiler)
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(libs.androidx.test.junit)
 }

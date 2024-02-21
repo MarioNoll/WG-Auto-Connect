@@ -16,6 +16,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiInfo
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.IBinder
 import androidx.annotation.StringRes
@@ -47,11 +48,14 @@ import javax.inject.Inject
 const val NETWORK_MONITOR_SERVICE_NETWORK_KEY = "network"
 const val NETWORK_MONITOR_SERVICE_TUNNEL_KEY = "tunnel"
 
-val NETWORK_SERVICE_PERMISSIONS = listOf(
-    Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-    "com.wireguard.android.permission.CONTROL_TUNNELS",
-)
+val NETWORK_SERVICE_PERMISSIONS = buildList {
+    add(Manifest.permission.ACCESS_FINE_LOCATION)
+    add("com.wireguard.android.permission.CONTROL_TUNNELS")
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    }
+}
 
 @AndroidEntryPoint
 class NetworkMonitorService : Service() {
@@ -67,6 +71,9 @@ class NetworkMonitorService : Service() {
     lateinit var locationManager: LocationManager
 
     @Inject
+    lateinit var wifiManager: WifiManager
+
+    @Inject
     lateinit var notificationManager: NotificationManagerCompat
 
     @Inject
@@ -79,21 +86,28 @@ class NetworkMonitorService : Service() {
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(
-            1,
-            foregroundServiceNotification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                1,
+                foregroundServiceNotification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            )
+        } else {
+            startForeground(
+                1,
+                foregroundServiceNotification,
+            )
+        }
 
         if (monitorJob == null && intent != null) {
             network = intent.getStringExtra(NETWORK_MONITOR_SERVICE_NETWORK_KEY)!!
             tunnel = intent.getStringExtra(NETWORK_MONITOR_SERVICE_TUNNEL_KEY)!!
 
             monitorJob = scope.launch {
-                transportCapabilities()
+                isWifiAvailable()
                     .distinctUntilChanged()
-                    .collectLatest { transportCapabilities ->
-                        checkWifiState(transportCapabilities)
+                    .collectLatest { isWifiAvailable ->
+                        checkWifiState(isWifiAvailable)
                     }
             }
         }
@@ -108,33 +122,32 @@ class NetworkMonitorService : Service() {
 
     override fun onBind(intent: Intent): IBinder? = null
 
-    private fun transportCapabilities(): Flow<List<Int>> = callbackFlow {
-        val defaultNetworkCallback = object : NetworkCallback() {
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
-            ) {
-                listOf(
-                    NetworkCapabilities.TRANSPORT_CELLULAR,
-                    NetworkCapabilities.TRANSPORT_WIFI,
-                )
-                    .filter(networkCapabilities::hasTransport)
-                    .let(::trySendBlocking)
+    private fun isWifiAvailable(): Flow<Boolean> = callbackFlow {
+        val networkCallback = object : NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                trySendBlocking(true)
+            }
+
+            override fun onLost(network: Network) {
+                trySendBlocking(false)
             }
         }
 
-        connectivityManager.registerDefaultNetworkCallback(defaultNetworkCallback)
+        val networkRequest = NetworkRequest.Builder()
+            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .build()
+
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
 
         awaitClose {
-            connectivityManager.unregisterNetworkCallback(defaultNetworkCallback)
+            connectivityManager.unregisterNetworkCallback(networkCallback)
         }
     }
 
-    private suspend fun checkWifiState(transportCapabilities: List<Int>) {
-        transportCapabilities
-            .contains(NetworkCapabilities.TRANSPORT_WIFI)
-            .let { wifiConnected -> if (wifiConnected) tunnelStateForWifi() else TunnelState.Up }
-            .also(::updateTunnel)
+    private suspend fun checkWifiState(isWifiAvailable: Boolean) {
+        updateTunnel(
+            if (isWifiAvailable) tunnelStateForWifi() else TunnelState.Up
+        )
     }
 
     private suspend fun tunnelStateForWifi(): TunnelState {
@@ -146,43 +159,43 @@ class NetworkMonitorService : Service() {
     }
 
     private fun connectedWifiSSID(): Flow<SSID?> = callbackFlow {
-        fun NetworkCapabilities.onChanged() {
-            (transportInfo as? WifiInfo)
-                ?.ssid
+        fun WifiInfo?.sendSSID() {
+            this?.ssid
                 ?.removeSurrounding("\"")
                 ?.let(::SSID)
                 .run(::trySendBlocking)
         }
 
-        val networkCallback = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            object : NetworkCallback(FLAG_INCLUDE_LOCATION_INFO) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val networkCallback = object : NetworkCallback(FLAG_INCLUDE_LOCATION_INFO) {
                 override fun onCapabilitiesChanged(
                     network: Network,
                     networkCapabilities: NetworkCapabilities
                 ) {
-                    networkCapabilities.onChanged()
+                    (networkCapabilities.transportInfo as? WifiInfo)?.sendSSID()
                 }
+            }
+
+            connectivityManager.registerNetworkCallback(
+                NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .build(),
+                networkCallback,
+            )
+
+            awaitClose {
+                connectivityManager.unregisterNetworkCallback(networkCallback)
             }
         } else {
-            object : NetworkCallback() {
-                override fun onCapabilitiesChanged(
-                    network: Network,
-                    networkCapabilities: NetworkCapabilities
-                ) {
-                    networkCapabilities.onChanged()
-                }
+            val connectionInfo = if (wifiManager.isWifiEnabled) {
+                @Suppress("DEPRECATION")
+                wifiManager.connectionInfo
+            } else {
+                null
             }
-        }
 
-        connectivityManager.registerNetworkCallback(
-            NetworkRequest.Builder()
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .build(),
-            networkCallback,
-        )
-
-        awaitClose {
-            connectivityManager.unregisterNetworkCallback(networkCallback)
+            connectionInfo.sendSSID()
+            awaitClose()
         }
     }
 
@@ -211,7 +224,9 @@ class NetworkMonitorService : Service() {
                 .let { PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE) }
 
             val channelId = "network_service"
-            if (notificationManager.getNotificationChannel(channelId) == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && notificationManager.getNotificationChannel(channelId) == null
+            ) {
                 notificationManager.createNotificationChannel(
                     NotificationChannel(
                         channelId,

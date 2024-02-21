@@ -2,11 +2,12 @@ package de.marionoll.wgautoconnect.service
 
 import android.content.Context
 import android.content.Intent
-import android.location.LocationManager
+import android.os.Build
 import androidx.datastore.core.DataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.marionoll.wgautoconnect.data.AutoConnectState
 import de.marionoll.wgautoconnect.data.SSID
+import de.marionoll.wgautoconnect.util.LocationHelper
 import de.marionoll.wgautoconnect.util.PermissionHelper
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -17,7 +18,7 @@ class NetworkMonitorServiceHandler
     private val trustedNetworkDataStore: DataStore<SSID?>,
     @ApplicationContext
     private val context: Context,
-    private val locationManager: LocationManager,
+    private val locationHelper: LocationHelper,
     private val permissionHelper: PermissionHelper,
 ) {
 
@@ -27,10 +28,16 @@ class NetworkMonitorServiceHandler
         if (!autoConnectData.enabled) return
 
         if (!stopIfRequirementsNotMet()) {
-            monitorServiceIntent.apply {
+            val intent = monitorServiceIntent.apply {
                 putExtra(NETWORK_MONITOR_SERVICE_NETWORK_KEY, trustedNetwork.value)
                 putExtra(NETWORK_MONITOR_SERVICE_TUNNEL_KEY, autoConnectData.tunnel.value)
-            }.also(context::startForegroundService)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
         }
     }
 
@@ -52,7 +59,7 @@ class NetworkMonitorServiceHandler
 
     private fun requirementsSatisfied(): Boolean {
         return permissionHelper.hasPermissions(NETWORK_SERVICE_PERMISSIONS)
-            && locationManager.isLocationEnabled
+            && locationHelper.isLocationEnabled
     }
 
     private val monitorServiceIntent: Intent

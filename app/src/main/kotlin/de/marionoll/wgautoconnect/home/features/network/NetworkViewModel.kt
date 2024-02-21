@@ -1,6 +1,5 @@
 package de.marionoll.wgautoconnect.home.features.network
 
-import android.location.LocationManager
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +10,7 @@ import de.marionoll.wgautoconnect.home.features.network.scan.NetworkScanResult
 import de.marionoll.wgautoconnect.home.features.network.scan.NetworkScanner
 import de.marionoll.wgautoconnect.home.ui.Precondition
 import de.marionoll.wgautoconnect.service.NetworkMonitorServiceHandler
+import de.marionoll.wgautoconnect.util.LocationHelper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -23,7 +23,7 @@ class NetworkViewModel
 @Inject constructor(
     private val trustedNetworkDataStore: DataStore<SSID?>,
     private val networkScanner: NetworkScanner,
-    private val locationManager: LocationManager,
+    private val locationHelper: LocationHelper,
     private val intentNavigator: IntentNavigator,
     private val serviceHandler: NetworkMonitorServiceHandler,
 ) : ViewModel() {
@@ -93,7 +93,7 @@ class NetworkViewModel
     private fun onSelectNetwork() {
         scanNetworksJob?.cancel()
 
-        if (!locationManager.isLocationEnabled) {
+        if (!locationHelper.isLocationEnabled) {
             showPreConditionDialog(
                 type = Precondition.Location(
                     origin = Precondition.Origin.Scan
