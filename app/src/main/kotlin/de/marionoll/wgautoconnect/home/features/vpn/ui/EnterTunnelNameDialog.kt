@@ -1,5 +1,6 @@
 package de.marionoll.wgautoconnect.home.features.vpn.ui
 
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -14,6 +15,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.window.DialogProperties
 import de.marionoll.wgautoconnect.R
@@ -47,8 +49,14 @@ fun EnterTunnelNameDialog(
             TextField(
                 modifier = Modifier.focusRequester(focusRequester),
                 value = viewState.input,
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        onEvent(Event.VPN.Dialog.Confirm)
+                    }
+                ),
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done,
                 ),
                 label = {
                     Text(
