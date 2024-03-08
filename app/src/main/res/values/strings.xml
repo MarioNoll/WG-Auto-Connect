@@ -20,9 +20,9 @@
     <string name="select_network_scan">Searching for networks…</string>
 
     <string name="home_guide_title">Automatically connect to a pre configured WireGuard tunnel once the connection to a specified network is lost.</string>
-    <string name="home_guide_step_1">Step 1: Select network.</string>
-    <string name="home_guide_step_2">Step 2: Enable service.</string>
-    <string name="home_guide_step_3">Step 3: Enter WireGuard tunnel name.</string>
+    <string name="home_guide_step_1">Step 1: Enable \"Allow remote control apps\" in WireGuard app settings.</string>
+    <string name="home_guide_step_2">Step 2: Select network.</string>
+    <string name="home_guide_step_3">Step 3: Enable service.</string>
 
     <string name="home_selected_network">Selected Network: "%s"</string>
     <string name="home_button_select_network">Select Network</string>

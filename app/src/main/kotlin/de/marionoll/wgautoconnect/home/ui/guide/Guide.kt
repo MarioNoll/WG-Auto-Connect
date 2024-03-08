@@ -1,5 +1,6 @@
 package de.marionoll.wgautoconnect.home.ui.guide
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -21,20 +22,21 @@ fun Guide(
 
         Spacer(modifier = Modifier.size(24.dp))
 
-        GuideStepItem(
-            text = R.string.home_guide_step_1,
-        )
-
-        Spacer(modifier = Modifier.size(8.dp))
-
-        GuideStepItem(
-            text = R.string.home_guide_step_2,
-        )
-
-        Spacer(modifier = Modifier.size(8.dp))
-
-        GuideStepItem(
-            text = R.string.home_guide_step_3,
-        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            guideItems.forEach { guideItem ->
+                GuideStepItem(
+                    text = guideItem,
+                )
+            }
+        }
     }
 }
+
+private val guideItems: List<Int>
+    get() = listOf(
+        R.string.home_guide_step_1,
+        R.string.home_guide_step_2,
+        R.string.home_guide_step_3,
+    )
