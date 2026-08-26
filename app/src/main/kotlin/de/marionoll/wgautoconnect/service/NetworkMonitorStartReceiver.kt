@@ -25,8 +25,13 @@ class NetworkMonitorStartReceiver : BroadcastReceiver() {
     }
 
     private fun onStartIndicatorReceived() {
+        val pendingResult = goAsync()
         CoroutineScope(Dispatchers.Default).launch {
-            serviceHandler.start()
+            try {
+                serviceHandler.start()
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 }

@@ -248,9 +248,9 @@ class NetworkMonitorService : Service() {
         }
 }
 
-context(Context)
+context(context: Context)
 fun NotificationCompat.Builder.setContentTitle(@StringRes title: Int) {
     setContentTitle(
-        getString(title)
+        context.getString(title)
     )
 }

@@ -2,6 +2,8 @@ package de.marionoll.wgautoconnect.home
 
 import android.Manifest
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.ModalBottomSheet
@@ -10,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.permissions.rememberPermissionState
 import de.marionoll.wgautoconnect.home.features.network.ui.SelectNetwork
 import de.marionoll.wgautoconnect.home.features.vpn.ui.EnterTunnelNameDialog
 import de.marionoll.wgautoconnect.home.ui.Precondition
@@ -78,12 +79,12 @@ fun HomeScreen(
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val notificationsPermissionState = rememberPermissionState(
-            Manifest.permission.POST_NOTIFICATIONS,
-        )
+        val notificationsPermissionLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) {}
 
         LaunchedEffect(Unit) {
-            notificationsPermissionState.launchPermissionRequest()
+            notificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }

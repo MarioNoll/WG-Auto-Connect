@@ -1,5 +1,7 @@
 package de.marionoll.wgautoconnect.home.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.permissions.rememberPermissionState
 import de.marionoll.wgautoconnect.R
 import de.marionoll.wgautoconnect.home.Event
 import de.marionoll.wgautoconnect.home.features.network.NetworkViewState
@@ -24,18 +25,17 @@ fun SelectNetwork(
     networkViewState: NetworkViewState,
     onEvent: (Event) -> Unit,
 ) {
-    val networkScanPermissionState = rememberPermissionState(
-        NETWORK_SCAN_PERMISSION,
-        onPermissionResult = { permissionGranted ->
-            onEvent(
-                if (permissionGranted) {
-                    Event.Network.OnSelectClick
-                } else {
-                    Event.Network.PermissionDenied
-                }
-            )
-        }
-    )
+    val networkScanPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { permissionGranted ->
+        onEvent(
+            if (permissionGranted) {
+                Event.Network.OnSelectClick
+            } else {
+                Event.Network.PermissionDenied
+            }
+        )
+    }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -43,7 +43,7 @@ fun SelectNetwork(
         HomeButton(
             style = HomeButtonStyle.Select,
             text = stringResource(id = R.string.home_button_select_network),
-            onClick = networkScanPermissionState::launchPermissionRequest,
+            onClick = { networkScanPermissionLauncher.launch(NETWORK_SCAN_PERMISSION) },
         )
 
         Spacer(modifier = Modifier.size(8.dp))

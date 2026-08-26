@@ -1,13 +1,15 @@
 package de.marionoll.wgautoconnect.home.ui.guide
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -30,23 +32,23 @@ fun GuideTitle(
 
     val annotatedString = buildAnnotatedString {
         append(guideTitleText)
-        addStringAnnotation(
-            tag = WIRE_GUARD_TEXT_KEY,
-            annotation = WIRE_GUARD_TEXT_KEY,
+        addLink(
+            LinkAnnotation.Clickable(
+                tag = WIRE_GUARD_TEXT_KEY,
+                styles = TextLinkStyles(
+                    style = SpanStyle(
+                        color = Color("#0000EE".toColorInt()),
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                ),
+                linkInteractionListener = { onEvent(Event.WireGuardClick) },
+            ),
             start = wireGuardTextStartIndex,
             end = wireGuardTextEndIndex,
         )
-        addStyle(
-            style = SpanStyle(
-                color = Color("#0000EE".toColorInt()),
-                textDecoration = TextDecoration.Underline
-            ),
-            start = wireGuardTextStartIndex,
-            end = wireGuardTextStartIndex + WIRE_GUARD_TEXT_KEY.length,
-        )
     }
 
-    ClickableText(
+    Text(
         modifier = Modifier.fillMaxWidth(),
         text = annotatedString,
         style = TextStyle.Default.copy(
@@ -55,12 +57,5 @@ fun GuideTitle(
             fontStyle = FontStyle.Italic,
             textAlign = TextAlign.Center,
         ),
-        onClick = { offset ->
-            annotatedString
-                .getStringAnnotations(offset, offset)
-                .firstOrNull()
-                ?.run {
-                    onEvent(Event.WireGuardClick)
-                }
-        })
+    )
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.marionoll.wgautoconnect.service.WIRE_GUARD_PACKAGE
 import javax.inject.Inject
@@ -21,10 +22,8 @@ class IntentNavigator
     }
 
     fun toWireGuardPlay() {
-        Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("https://play.google.com/store/apps/details?id=$WIRE_GUARD_PACKAGE")
-        ).send()
+        val uri = "https://play.google.com/store/apps/details?id=$WIRE_GUARD_PACKAGE".toUri()
+        Intent(Intent.ACTION_VIEW, uri).send()
     }
 
     fun toLocationSettings() {

@@ -1,5 +1,7 @@
 package de.marionoll.wgautoconnect.home.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +16,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import de.marionoll.wgautoconnect.R
 import de.marionoll.wgautoconnect.home.Event
 import de.marionoll.wgautoconnect.home.HomeViewState
@@ -28,23 +29,22 @@ fun AutoConnect(
 ) {
     val vpnViewState = viewState.vpnViewState
 
-    val networkScanPermissionsState = rememberMultiplePermissionsState(
-        permissions = NETWORK_SERVICE_PERMISSIONS,
-        onPermissionsResult = { result ->
-            val allGranted = result.all { (_, granted) -> granted }
-            onEvent(
-                if (allGranted) {
-                    Event.VPN.ToggleVPNButtonClick
-                } else {
-                    Event.VPN.PermissionDenied
-                }
-            )
-        }
-    )
+    val networkScanPermissionsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { result ->
+        val allGranted = result.all { (_, granted) -> granted }
+        onEvent(
+            if (allGranted) {
+                Event.VPN.ToggleVPNButtonClick
+            } else {
+                Event.VPN.PermissionDenied
+            }
+        )
+    }
 
     if (vpnViewState.requestNetworkPermissions) {
         LaunchedEffect(Unit) {
-            networkScanPermissionsState.launchMultiplePermissionRequest()
+            networkScanPermissionsLauncher.launch(NETWORK_SERVICE_PERMISSIONS.toTypedArray())
             onEvent(Event.VPN.PermissionRequest)
         }
     }

@@ -6,13 +6,8 @@
     <string name="general_button_install">Install</string>
 
     <string name="network_service_active">WG Auto Connect is running</string>
-    <string name="vpn_auto_connect_button_enabled">Enable WG Auto Connect</string>
-    <string name="vpn_auto_connect_button_disabled">Disable WG Auto Connect</string>
     <string name="vpn_auto_connect_notification_channel">Network monitor service</string>
-    <string name="wifi_button_select">Select Trusted WIFI</string>
-    <string name="wifi_button_edit">Edit Trusted WIFI</string>
     <string name="wifi_scan_empty">No nearby Wi-Fi found…</string>
-    <string name="wifi_scan_location_disabled_Enable">Enable</string>
 
     <string name="tunnel_name_enter_dialog_label">WireGuard Tunnel Name</string>
     <string name="tunnel_name_enter_dialog_button_confirm">Confirm</string>
